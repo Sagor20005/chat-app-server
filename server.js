@@ -7,7 +7,7 @@ const App = express()
 const server = createServer(App)
 const io = new Server(server,{
   cors: {
-    origin: "http://localhost:3000"
+    origin: "https://jessengar.vercel.app"
   }
 });
 
