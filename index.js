@@ -1,5 +1,5 @@
-const { express, App, server, io } = require("./server.js")
 require('dotenv').config()
+const { express, App, server, io } = require("./server.js")
 const cors = require("cors")
 
 
