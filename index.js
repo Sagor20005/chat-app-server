@@ -1,7 +1,8 @@
-const express = require("express")
-const cors = require("cors")
-const App = express()
+const { express, App, server, io } = require("./server.js")
 require('dotenv').config()
+const cors = require("cors")
+
+
 
 const PORT = 7000
 
@@ -16,6 +17,14 @@ App.use(require("./routes/main.js"))
 App.use("/message",require("./routes/messages.js"))
 
 
-App.listen(PORT,()=>{
+io.on("connection",(socket)=>{
+  socket.on("user_message",(message)=>{
+    io.emit("new_message",message)
+  })
+})
+
+
+
+server.listen(PORT,()=>{
   console.log("Messengar Api running at: ",PORT)
 })
