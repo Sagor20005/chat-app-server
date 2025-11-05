@@ -10,13 +10,17 @@ Controlars.createChat = async (req,resp)=>{
   }
   
   // Cheak Alrady have or not
-  const userAllChats = await ChatColl.find({ members: members[0] }).find({ members: members[1] })
-  if(userAllChats.length){
+  const userAllChats = await ChatColl.find({ members: members[0] })
+  const matched = userAllChats.some((chat)=>{
+    return chat.members.includes(members[1])
+  })
+  if(matched){
     resp.status(404).json({
       error:"Alrady Have Chat"
     })
     return
   }
+  
   
   // Create new
   try{
