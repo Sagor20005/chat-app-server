@@ -21,6 +21,10 @@ io.on("connection",(socket)=>{
   socket.on("user_message",(message)=>{
     io.emit("new_message",message)
   })
+  
+  socket.on("seen",(data)=>{
+    io.emit("seen_response",data)
+  })
 })
 
 
