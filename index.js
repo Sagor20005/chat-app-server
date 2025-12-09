@@ -25,6 +25,11 @@ io.on("connection",(socket)=>{
   socket.on("seen",(data)=>{
     io.emit("seen_response",data)
   })
+  
+  socket.on("typing",(data)=>{
+    io.emit("typing_res",data)
+  })
+  
 })
 
 
