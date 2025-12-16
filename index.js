@@ -30,6 +30,10 @@ io.on("connection",(socket)=>{
     io.emit("typing_res",data)
   })
   
+  socket.on("react",(data)=>{
+    io.emit("react_res",data)
+  })
+  
 })
 
 
