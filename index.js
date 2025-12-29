@@ -34,6 +34,10 @@ io.on("connection",(socket)=>{
     io.emit("react_res",data)
   })
   
+  socket.on("undo_react",(data)=>{
+    io.emit("undo_react",data)
+  })
+  
 })
 
 
