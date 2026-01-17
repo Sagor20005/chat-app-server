@@ -4,6 +4,9 @@ const { express, App, server, io } = require("./server.js")
 const cors = require("cors")
 
 
+const Savemessage = require("./utilities/saveMessage.js")
+
+
 
 const PORT = 7000
 const ACTIVE_LIST = {}
@@ -78,8 +81,20 @@ io.on("connection",async (socket)=>{
     io.to(ACTIVE_LIST[host]).emit("checkWhosOnline",{online_users})
   })
   
-  socket.on("user_message",(message)=>{
-    io.emit("new_message",message)
+  socket.on("user_message",async (message)=>{
+
+    // FIRST CHECK THE TERGATED USER IS ONLINE OR NOT 
+    // If user is online then send while saved on database 
+ 
+    // Check user is oneline 
+    const {receiver_id} = message
+    const isActive = Object.keys(ACTIVE_LIST).includes(receiver_id)
+    if(isActive){
+      io.to(ACTIVE_LIST[receiver_id]).emit("new_message",message)
+    }else{
+      // saved on database 
+      await Savemessage(message)
+    }
   })
   
   socket.on("seen",(data)=>{
