@@ -81,8 +81,8 @@ Controlars.getMessages = async (req, resp) => {
   try {
     const ids = req.body
     if (!ids || !Array.isArray(ids)) throw Error("Invalid data !")
-    const messages = await Promise.all(ids.map((_id) => {
-      return messageColl.findOne({ _id })
+    const messages = await Promise.all(ids.map((message_id) => {
+      return messageColl.findOne({ message_id })
     }))
     resp.status(200).json(messages)
   } catch (err) {
@@ -95,14 +95,14 @@ Controlars.getMessages = async (req, resp) => {
 // DELETE A MESSGE 
 Controlars.deleteMessage = async (req, resp) => {
   try {
-    const {chat_id , message_id} = req.body
-    await messageColl.findByIdAndDelete({ message_id })
-    const chat = await ChatColl.findOne({_id:chat_id})
+    const { chat_id, message_id } = req.body
+    await messageColl.findOneAndDelete({ message_id })
+    const chat = await ChatColl.findOne({ _id: chat_id })
     chat.messages = chat.messages.filter(i => i !== message_id)
     await chat.save()
     resp.status(200)
   } catch (err) {
-    resp.status(500)
+    resp.status(200)
   }
 }
 
