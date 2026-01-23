@@ -115,4 +115,70 @@ Controlars.userList = async (req,resp)=>{
 }
 
 
+
+// CHANGE NAME AND USER NAME 
+Controlars.changeNameAndUsername = async (req,resp)=>{
+  const body = req.body;
+  const {user_id, data} = body;
+  try{
+    // invalid data error 
+    if (!user_id || typeof(data) !== "object") throw Error("Invalid data!")
+    // Update 
+    const updateRes = await UserColl.findOneAndUpdate({_id:user_id},data)
+    // Get updated data
+    const user = await UserColl.findOne({_id:user_id})
+
+    // Convert to token 
+    const toObj = user.toObject()
+    delete toObj.password
+    const token = createJwt(toObj,31536000)
+
+
+    resp.status(200).json({
+      token
+    })
+
+  }catch(err){
+    resp.status(200).json({
+      error: err.message
+    })
+  }
+}
+
+
+
+// CHANGE PASSWORD 
+Controlars.changePassword = async (req,resp)=>{
+  const body = req.body;
+  const {_id, data} = body;
+  try{
+    // invalid data error 
+    if (!_id || typeof(data) !== "object") throw Error("Invalid data!")
+
+    const user = await UserColl.findOne({_id})
+    
+    // encode old password and match 
+    const encodedPass = createJwt(data.current_password)
+
+    // match the bothe encoded password  and if invalid then exit
+    if (encodedPass !== user.password){
+      throw Error("Invalid Password.")
+    }
+    
+    // create hash password and save 
+    const newPasswordHash = createJwt(data.newPassword)
+    user.password = newPasswordHash
+    const save = await user.save()
+
+    resp.status(200).json({
+      state: true
+    })
+  }catch(err){
+    resp.status(200).json({
+      error: err.message
+    })
+  }
+}
+
+
 module.exports = Controlars
