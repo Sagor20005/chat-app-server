@@ -6,6 +6,10 @@ const Controlars = {}
 
 
 
+
+
+
+
 // SIGNUP USER
 Controlars.Signup = async (req, resp) => {
   const SignupData = req.body || {}
@@ -222,6 +226,89 @@ Controlars.ChangeEmailPhone = async (req, resp) => {
 
   } catch (err) {
     resp.status(500).json({ error: err.message })
+  }
+}
+
+
+
+// BLOCK AN USER CONTROLAR 
+
+Controlars.Block_an_User = async (req,resp)=>{
+  try {
+    const { user, block_user } = req.body 
+    if(!user || !block_user) throw Error("Server error")
+
+    // Blocking User 
+    const me = await UserColl.findOne({_id: user}) // get my account info 
+    // if not have then create an array 
+    if(!me.blocked_accounts){
+      me.blocked_accounts = []
+    }
+    // check is alrady blocked and send response 
+    const isAlradyBlocked = me.blocked_accounts.some(e => e === block_user)
+    if (isAlradyBlocked) throw Error("Alrady blocked!")
+    // if not then block now and save and send resp 
+    me.blocked_accounts.push(block_user)
+    await me.save()
+
+    // Update blocked user data
+    const blocked_user = await UserColl.findOne({_id: block_user})
+    if (!blocked_user.blocked_by){
+      blocked_user.blocked_by = [user]
+    }else{
+      // Check alrady have ? 
+      const isHave = blocked_user.blocked_by.some( e=> e === user)
+      if (!isHave) blocked_user.blocked_by.push(user)
+    }
+    await blocked_user.save()
+    
+
+    resp.status(200).json({mesage: "blocked!"})
+  } catch (error) {
+    resp.status(500).json({message: error.message})
+  }
+}
+
+
+
+
+// GET MY USER DATA CONTRAOLAR
+Controlars.GetUserData = async (req,resp)=>{
+  try {
+    const _id = req.params.id
+    const user = await UserColl.findOne({_id})
+    resp.status(200).json({data: user})
+  } catch (error) {
+    resp.status(500).json({message: error.message})
+  }
+}
+
+// UNBLOCK AN USER 
+Controlars.UnblockAnUser = async (req,resp)=>{
+  try {
+    const {unblock_user_id, user_id} = req.body
+    if(!unblock_user_id || !user_id ) throw Error("Server error!")
+    
+    // Now working area
+    // find my user and unblock the user and then
+    // find the unblock user then remove the blocked by user label 
+    const me = await UserColl.findOne({_id: user_id})
+    const index = me.blocked_accounts.findIndex(e=> e === unblock_user_id)
+    if(index === -1)  throw Error("Wrong action !")
+    me.blocked_accounts.splice(index,1)
+    await me.save()
+    
+    const against_user = await UserColl.findOne({_id: unblock_user_id})
+    const index2 = against_user.blocked_by.findIndex( e=> e === user_id)
+    if(index2 === -1) throw Error("Unblocked but have issue!")
+    against_user.blocked_by.splice(index2,1)
+    await against_user.save()
+
+    resp.status(200).json({
+      message: "Unblocked !"
+    })
+  } catch (error) {
+    resp.status(500).json({message: error.message})
   }
 }
 

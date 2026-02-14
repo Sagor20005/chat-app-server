@@ -66,6 +66,9 @@ const UserSchema = new Schema({
     default: false
   },
 
+  blocked_accounts: [String],
+  blocked_by: [String],
+
   createdAt: {
     type: Date,
     default: Date.now
